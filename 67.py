@@ -1,4 +1,5 @@
 #!/usr/bin/python2
+import heapq
 
 MAX_SUM=100000000
 
@@ -13,22 +14,21 @@ for i in range(len(f)):
 
 
 start = '0_0'
-goals = [str(len(f)-1)+"_"+str(i) for i in range(len(f))]
+goals = set(str(len(f)-1)+"_"+str(i) for i in range(len(f)))
 
-openset = [start]
+openset = set()
+openset.add(start)
 
-g_score = {}
-g_score[start] = MAX_SUM-f[0][0]
+openHeap = []
+openHeap.append((MAX_SUM-f[0][0], start))
 
 while openset:
-    current = min(openset, key = lambda node: g_score[node])
+    g_score, current = heapq.heappop(openHeap)
     if current in goals:
-        print len(f)*MAX_SUM-g_score[current]
+        print len(f)*MAX_SUM-g_score
         break
     openset.remove(current)
     for neighbor in G[current]:
-        tentative_g_score = g_score[current] + G[current][neighbor]
-        if (neighbor not in openset) or (tentative_g_score <= g_score[neighbor]):
-            g_score[neighbor] = tentative_g_score
-            if neighbor not in openset:
-                openset.append(neighbor)
+        if neighbor not in openset:
+            openset.add(neighbor)
+            heapq.heappush(openHeap, (g_score + G[current][neighbor], neighbor))
